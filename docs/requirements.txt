@@ -1,0 +1,39 @@
+# ── Core Data Processing ─────────────────────────────────────────────────────
+pandas==2.2.2
+numpy==1.26.4
+duckdb==1.2.2
+
+# ── Lakehouse / Storage ───────────────────────────────────────────────────────
+deltalake==0.25.4
+
+# ── Orchestration ─────────────────────────────────────────────────────────────
+apache-airflow==2.10.5
+
+# ── Data Quality ──────────────────────────────────────────────────────────────
+great-expectations==1.3.10
+
+# ── Credit Scoring / WoE / IV ─────────────────────────────────────────────────
+scorecardpy==0.1.9.2
+optbinning==0.19.1
+
+# ── Machine Learning ──────────────────────────────────────────────────────────
+scikit-learn==1.5.2
+imbalanced-learn==0.12.3        # SMOTE for class imbalance
+
+# ── Experiment Tracking ───────────────────────────────────────────────────────
+mlflow==2.19.0
+
+# ── Dashboard ─────────────────────────────────────────────────────────────────
+streamlit==1.45.1
+plotly==5.24.1
+
+# ── MinIO (S3-compatible storage — activated in Phase 2) ─────────────────────
+boto3==1.35.36                  # S3 client for MinIO
+s3fs==2024.9.0                  # S3 filesystem interface for pandas/duckdb
+
+# ── Utilities ─────────────────────────────────────────────────────────────────
+python-dotenv==1.0.1            # load config from .env file
+loguru==0.7.2                   # clean logging
+tqdm==4.66.5                    # progress bars
+pyarrow==17.0.0                 # Parquet read/write engine
+fastparquet==2024.5.0           # alternative Parquet engine
