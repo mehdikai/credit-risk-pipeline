@@ -1,0 +1,23 @@
+{
+  "total_clients": 36457,
+  "default_count": 616,
+  "good_count": 35841,
+  "default_rate_pct": 1.69,
+  "features_count": 24,
+  "features_shortlisted": [
+    "AGE_YEARS",
+    "AMT_INCOME_TOTAL",
+    "EMPLOYED_YEARS",
+    "IS_UNEMPLOYED",
+    "CODE_GENDER",
+    "FLAG_OWN_CAR",
+    "FLAG_OWN_REALTY",
+    "NAME_INCOME_TYPE",
+    "NAME_EDUCATION_TYPE",
+    "NAME_FAMILY_STATUS",
+    "NAME_HOUSING_TYPE",
+    "OCCUPATION_TYPE",
+    "CNT_CHILDREN",
+    "CNT_FAM_MEMBERS"
+  ]
+}
