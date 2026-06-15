@@ -1,6 +1,6 @@
 # ── Core Data Processing ─────────────────────────────────────────────────────
-pandas==2.3.3pip 
-numpy==2.4.6
+pandas==2.3.3
+numpy==1.26.4
 duckdb==1.5.3
 
 # ── Lakehouse / Storage ───────────────────────────────────────────────────────
@@ -15,6 +15,7 @@ great-expectations==1.18.0
 # ── Credit Scoring / WoE / IV ─────────────────────────────────────────────────
 scorecardpy==0.1.9.7
 optbinning==0.21.0
+setuptools<81                   # scorecardpy still imports pkg_resources (removed in setuptools 81+)
 
 # ── Machine Learning ──────────────────────────────────────────────────────────
 scikit-learn==1.9.0
