@@ -3,9 +3,9 @@ STORAGE_MODE = "local"  # switch to "minio" later
 
 PATHS = {
     "local": {
-        "bronze": "warehouse/bronze/",
-        "silver": "warehouse/silver/",
-        "gold":   "warehouse/gold/",
+        "bronze": "lakehouse/bronze/",
+        "silver": "lakehouse/silver/",
+        "gold":   "lakehouse/gold/",
     },
     "minio": {
         "bronze": "s3://bronze/",
