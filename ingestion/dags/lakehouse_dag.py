@@ -8,8 +8,10 @@ Bronze -> Silver medallion pipeline:
     (ingestion/silver_clean.py)
   - silver_woe: WoE-bins + IV-selects features from silver_clean, writes
     silver_woe and the woe_bins artifact (ingestion/silver_woe.py)
+  - gold: keeps only WoE feature columns + TARGET, writes the versioned
+    gold_features Delta table (ingestion/gold_build.py)
 
-Gold feature-selection tasks (Week 5) will be appended to this same DAG.
+Model training tasks (Week 6+) will be appended to this same DAG.
 """
 from __future__ import annotations
 
@@ -52,6 +54,12 @@ def lakehouse_pipeline():
 
         return _build()
 
+    @task
+    def build_gold_features(_silver_woe_result):
+        from ingestion.gold_build import build_gold_features as _build
+
+        return _build()
+
     with TaskGroup(group_id="bronze"):
         bronze_results = [
             ingest_bronze.override(task_id=f"ingest_{table_name}")(table_name)
@@ -59,7 +67,8 @@ def lakehouse_pipeline():
         ]
 
     silver_clean_result = build_silver_clean(bronze_results)
-    build_silver_woe(silver_clean_result)
+    silver_woe_result = build_silver_woe(silver_clean_result)
+    build_gold_features(silver_woe_result)
 
 
 lakehouse_pipeline()

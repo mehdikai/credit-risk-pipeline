@@ -8,6 +8,8 @@ deltalake==1.6.0
 
 # ── Orchestration ─────────────────────────────────────────────────────────────
 apache-airflow==3.2.2
+fastapi==0.136.1                # pinned per Airflow 3.2.2's official constraints file —
+cadwyn==6.2.2                   # newer fastapi/cadwyn (auto-resolved otherwise) breaks the API server
 
 # ── Data Quality ──────────────────────────────────────────────────────────────
 great-expectations==1.18.0
