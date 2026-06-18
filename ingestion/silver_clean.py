@@ -72,6 +72,13 @@ def build_silver_clean():
     )
     joined["OCCUPATION_TYPE"] = joined["OCCUPATION_TYPE"].fillna("Unknown")
 
+    # Domain ratio features — both outperform every raw shortlisted feature
+    # on IV (Week 4 experiment) and stay interpretable for the BAM scorecard
+    # narrative ("share of life spent employed", "income per dependent").
+    # Denominators are safe: AGE_YEARS >= 18 and CNT_FAM_MEMBERS >= 1 always.
+    joined["EMPLOYED_RATIO"] = joined["EMPLOYED_YEARS"] / joined["AGE_YEARS"]
+    joined["INCOME_PER_FAM_MEMBER"] = joined["AMT_INCOME_TOTAL"] / joined["CNT_FAM_MEMBERS"]
+
     # --- output contract check (post-clean) ---
     output_result = validate_dataframe(
         joined, "silver_output_silver_clean", silver_output_expectations()
@@ -82,7 +89,7 @@ def build_silver_clean():
 
     # --- write to Delta ---
     out_path = f"{SILVER_PATH}silver_clean"
-    write_deltalake(out_path, joined, mode="overwrite")
+    write_deltalake(out_path, joined, mode="overwrite", schema_mode="overwrite")
 
     return {
         "rows_bronze_application_record": len(app_raw),

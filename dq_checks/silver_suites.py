@@ -40,5 +40,7 @@ def silver_output_expectations():
         gxe.ExpectColumnValuesToNotBeNull(column="EMPLOYED_YEARS"),
         gxe.ExpectColumnValuesToNotBeNull(column="IS_UNEMPLOYED"),
         gxe.ExpectColumnDistinctValuesToBeInSet(column="IS_UNEMPLOYED", value_set=[0, 1]),
+        gxe.ExpectColumnValuesToNotBeNull(column="EMPLOYED_RATIO"),
+        gxe.ExpectColumnValuesToNotBeNull(column="INCOME_PER_FAM_MEMBER"),
         gxe.ExpectTableRowCountToBeBetween(min_value=1),
     ]

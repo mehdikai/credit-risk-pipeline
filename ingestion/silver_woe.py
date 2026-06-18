@@ -21,6 +21,9 @@ SHORTLISTED_FEATURES = [
     "AGE_YEARS", "AMT_INCOME_TOTAL", "EMPLOYED_YEARS", "IS_UNEMPLOYED", "CODE_GENDER",
     "FLAG_OWN_CAR", "FLAG_OWN_REALTY", "NAME_INCOME_TYPE", "NAME_EDUCATION_TYPE",
     "NAME_FAMILY_STATUS", "NAME_HOUSING_TYPE", "OCCUPATION_TYPE", "CNT_CHILDREN", "CNT_FAM_MEMBERS",
+    # engineered ratios (added after IV experiment: both outperform every
+    # raw feature above while staying interpretable for the scorecard)
+    "EMPLOYED_RATIO", "INCOME_PER_FAM_MEMBER",
 ]
 
 # Features with IV < IV_MIN carry too little predictive signal to be worth
@@ -83,7 +86,7 @@ def build_silver_woe():
         raise ValueError("Silver WoE output-contract checks failed for silver_woe")
 
     out_path = f"{SILVER_PATH}silver_woe"
-    write_deltalake(out_path, encoded, mode="overwrite")
+    write_deltalake(out_path, encoded, mode="overwrite", schema_mode="overwrite")
 
     return {
         "features_evaluated": len(iv_table),
