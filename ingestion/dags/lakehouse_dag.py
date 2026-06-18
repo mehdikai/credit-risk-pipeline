@@ -6,9 +6,10 @@ Bronze -> Silver medallion pipeline:
   - silver_clean: joins, dedups, derives the TARGET label via vintage
     analysis, and writes silver_clean as a Delta table
     (ingestion/silver_clean.py)
+  - silver_woe: WoE-bins + IV-selects features from silver_clean, writes
+    silver_woe and the woe_bins artifact (ingestion/silver_woe.py)
 
-Silver/Gold WoE + feature-selection tasks (Weeks 4-5) will be appended to
-this same DAG.
+Gold feature-selection tasks (Week 5) will be appended to this same DAG.
 """
 from __future__ import annotations
 
@@ -45,13 +46,20 @@ def lakehouse_pipeline():
 
         return _build()
 
+    @task
+    def build_silver_woe(_silver_clean_result):
+        from ingestion.silver_woe import build_silver_woe as _build
+
+        return _build()
+
     with TaskGroup(group_id="bronze"):
         bronze_results = [
             ingest_bronze.override(task_id=f"ingest_{table_name}")(table_name)
             for table_name in ["application_record", "credit_record", "credit_risk_dataset"]
         ]
 
-    build_silver_clean(bronze_results)
+    silver_clean_result = build_silver_clean(bronze_results)
+    build_silver_woe(silver_clean_result)
 
 
 lakehouse_pipeline()

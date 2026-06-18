@@ -1,0 +1,38 @@
+{
+  "iv_by_feature": {
+    "CNT_CHILDREN": 0.0007,
+    "EMPLOYED_YEARS": 0.0546,
+    "NAME_HOUSING_TYPE": 0.0016,
+    "AGE_YEARS": 0.0546,
+    "AMT_INCOME_TOTAL": 0.0309,
+    "FLAG_OWN_CAR": 0.0011,
+    "NAME_FAMILY_STATUS": 0.0252,
+    "CODE_GENDER": 0.0136,
+    "NAME_INCOME_TYPE": 0.0177,
+    "OCCUPATION_TYPE": 0.0557,
+    "CNT_FAM_MEMBERS": 0.0073,
+    "NAME_EDUCATION_TYPE": 0.0036,
+    "FLAG_OWN_REALTY": 0.0283,
+    "IS_UNEMPLOYED": 0.0016
+  },
+  "selected_features": [
+    "EMPLOYED_YEARS",
+    "AGE_YEARS",
+    "AMT_INCOME_TOTAL",
+    "NAME_FAMILY_STATUS",
+    "OCCUPATION_TYPE",
+    "FLAG_OWN_REALTY"
+  ],
+  "dropped_features": {
+    "CNT_CHILDREN": 0.0007,
+    "NAME_HOUSING_TYPE": 0.0016,
+    "FLAG_OWN_CAR": 0.0011,
+    "CODE_GENDER": 0.0136,
+    "NAME_INCOME_TYPE": 0.0177,
+    "CNT_FAM_MEMBERS": 0.0073,
+    "NAME_EDUCATION_TYPE": 0.0036,
+    "IS_UNEMPLOYED": 0.0016
+  },
+  "iv_min": 0.02,
+  "iv_max": 0.5
+}
