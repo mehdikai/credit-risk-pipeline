@@ -7,5 +7,5 @@ mlflow/
 dq_checks/reports/
 airflow_home/
 .env
-.context.txt
-.context1.txt
+context.txt
+context1.txt
