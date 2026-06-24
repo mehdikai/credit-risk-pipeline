@@ -135,7 +135,7 @@ airflow standalone
 | 3 | Silver — cleaning, join, dedup, default label | Done |
 | 4 | Silver — WoE / IV / feature selection | Done |
 | 5 | Gold layer | Done |
-| 6 | Model training (Logistic Regression + scorecard + MLflow) | Pending |
+| 6 | Model training (Logistic Regression + scorecard + MLflow) | Done |
 | 7 | Model evaluation (KS, Gini, AUC) | Pending |
 | 8-9 | Streamlit dashboard (portfolio + live scoring) | Pending |
 | 10 | Docker + MinIO | Pending |
@@ -155,3 +155,8 @@ airflow standalone
   raw feature on IV while staying interpretable for the scorecard narrative
 - `gold_features` (Delta, version 0): 36,457 rows x 8 WoE features + TARGET,
   all Great Expectations checks passing at every layer
+- Logistic Regression (`class_weight="balanced"`) trained and tracked in
+  MLflow (`mlflow/mlflow.db`, experiment `credit_risk_scorecard`); converted
+  into a point-based scorecard (`ml/scorecard.csv`, base 600 pts / 50:1 odds
+  / PDO 20). Train/test accuracy (~59%) is only a sanity check here — real
+  evaluation (KS/Gini/AUC, threshold selection) is Week 7

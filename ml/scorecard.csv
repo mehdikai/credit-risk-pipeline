@@ -1,0 +1,41 @@
+variable,bin,points
+basepoints,,487.0
+AMT_INCOME_TOTAL,"[-inf,90000.0)",3.0
+AMT_INCOME_TOTAL,"[90000.0,110000.0)",-7.0
+AMT_INCOME_TOTAL,"[110000.0,120000.0)",3.0
+AMT_INCOME_TOTAL,"[120000.0,140000.0)",-1.0
+AMT_INCOME_TOTAL,"[140000.0,160000.0)",8.0
+AMT_INCOME_TOTAL,"[160000.0,280000.0)",-1.0
+AMT_INCOME_TOTAL,"[280000.0,330000.0)",-6.0
+AMT_INCOME_TOTAL,"[330000.0,inf)",5.0
+NAME_FAMILY_STATUS,Separated,3.0
+NAME_FAMILY_STATUS,"Civil marriage%,%Married",1.0
+NAME_FAMILY_STATUS,"Single / not married%,%Widow",-6.0
+OCCUPATION_TYPE,"Realty agents%,%Private service staff%,%Medicine staff%,%Cleaning staff",25.0
+OCCUPATION_TYPE,"Waiters/barmen staff%,%HR staff%,%Sales staff%,%Secretaries%,%Cooking staff",9.0
+OCCUPATION_TYPE,"Managers%,%Laborers%,%Unknown%,%Accountants",0.0
+OCCUPATION_TYPE,"Core staff%,%High skill tech staff%,%Security staff",-7.0
+OCCUPATION_TYPE,"Drivers%,%Low-skill Laborers%,%IT staff",-13.0
+EMPLOYED_RATIO,"[-inf,0.09)",-3.0
+EMPLOYED_RATIO,"[0.09,0.19)",-0.0
+EMPLOYED_RATIO,"[0.19,0.22)",12.0
+EMPLOYED_RATIO,"[0.22,inf)",4.0
+AGE_YEARS,"[-inf,29.0)",1.0
+AGE_YEARS,"[29.0,31.0)",-15.0
+AGE_YEARS,"[31.0,34.0)",7.0
+AGE_YEARS,"[34.0,36.0)",-7.0
+AGE_YEARS,"[36.0,45.0)",5.0
+AGE_YEARS,"[45.0,48.0)",12.0
+AGE_YEARS,"[48.0,57.0)",-6.0
+AGE_YEARS,"[57.0,inf)",2.0
+FLAG_OWN_REALTY,Y,3.0
+FLAG_OWN_REALTY,N,-6.0
+INCOME_PER_FAM_MEMBER,"[-inf,40000.0)",6.0
+INCOME_PER_FAM_MEMBER,"[40000.0,80000.0)",0.0
+INCOME_PER_FAM_MEMBER,"[80000.0,160000.0)",-3.0
+INCOME_PER_FAM_MEMBER,"[160000.0,215000.0)",23.0
+INCOME_PER_FAM_MEMBER,"[215000.0,inf)",-10.0
+EMPLOYED_YEARS,"[-inf,3.0)",-3.0
+EMPLOYED_YEARS,"[3.0,12.5)",1.0
+EMPLOYED_YEARS,"[12.5,17.0)",12.0
+EMPLOYED_YEARS,"[17.0,inf)",6.0

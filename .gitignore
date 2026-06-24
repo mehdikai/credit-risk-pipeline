@@ -4,6 +4,8 @@ __pycache__/
 data/raw/*.csv
 lakehouse/
 mlflow/
+mlruns/
+ml/model.pkl
 dq_checks/reports/
 airflow_home/
 .env
