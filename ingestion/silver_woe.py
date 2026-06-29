@@ -14,7 +14,7 @@ import scorecardpy as sc
 from deltalake import DeltaTable, write_deltalake
 
 from config.config import SILVER_PATH
-from dq_checks.ge_utils import validate_dataframe, write_report
+from dq_checks.ge_utils import validate_dataframe
 from dq_checks.silver_woe_suites import silver_woe_expectations
 
 SHORTLISTED_FEATURES = [
@@ -81,7 +81,6 @@ def build_silver_woe():
     output_result = validate_dataframe(
         encoded, "silver_woe_silver_woe", silver_woe_expectations(woe_columns)
     )
-    write_report("silver_woe", "silver_woe", output_result)
     if not output_result["success"]:
         raise ValueError("Silver WoE output-contract checks failed for silver_woe")
 

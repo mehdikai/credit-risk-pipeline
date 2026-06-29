@@ -1,80 +1,88 @@
-"""Lightweight Great Expectations runner used across all lakehouse layers."""
-import json
-from datetime import datetime, timezone
+"""Great Expectations runner backed by a persistent context + real Data Docs.
+
+Every validation runs through a GE Checkpoint with an UpdateDataDocsAction,
+so each call regenerates the official GE Data Docs HTML site (full history
+of every run, per-expectation drill-down, charts, search/navigation) at
+DATA_DOCS_INDEX. This replaces the earlier lightweight custom HTML
+renderer — visual polish now comes from GE itself rather than a hand-rolled
+template.
+
+The context and all suites/checkpoints are persisted under dq_checks/gx/
+(regenerated on every run via add_or_update — safe to delete and rebuild).
+"""
 from pathlib import Path
 
 import great_expectations as gx
+from great_expectations.checkpoint.actions import UpdateDataDocsAction
 
-from config.config import DQ_REPORT_PATH
+GX_PROJECT_ROOT = Path("dq_checks")
+DATA_DOCS_INDEX = GX_PROJECT_ROOT / "gx" / "uncommitted" / "data_docs" / "local_site" / "index.html"
+
+_context = None
+
+
+def _get_context():
+    global _context
+    if _context is None:
+        _context = gx.get_context(mode="file", project_root_dir=str(GX_PROJECT_ROOT))
+    return _context
+
+
+def _get_or_add_datasource(context, name):
+    try:
+        return context.data_sources.get(name)
+    except KeyError:
+        return context.data_sources.add_pandas(name)
+
+
+def _get_or_add_asset(datasource, name):
+    try:
+        return datasource.get_asset(name)
+    except LookupError:
+        return datasource.add_dataframe_asset(name=name)
+
+
+def _get_or_add_batch_definition(asset, name):
+    try:
+        return asset.get_batch_definition(name)
+    except KeyError:
+        return asset.add_batch_definition_whole_dataframe(name)
 
 
 def validate_dataframe(df, suite_name, expectations):
-    """Run a list of GE expectations against a pandas dataframe.
+    """Run a list of GE expectations against a pandas dataframe via a
+    Checkpoint, updating the real GE Data Docs site as a side effect.
 
-    Returns the GE validation result as a dict (success flag, statistics,
-    per-expectation results).
+    Returns the validation result as a dict (success flag, statistics,
+    per-expectation results) — same shape every caller already expects,
+    regardless of the underlying GE plumbing.
     """
-    context = gx.get_context(mode="ephemeral")
-    data_source = context.data_sources.add_pandas(f"pandas_{suite_name}")
-    asset = data_source.add_dataframe_asset(name=suite_name)
-    batch_definition = asset.add_batch_definition_whole_dataframe("batch")
-    batch = batch_definition.get_batch(batch_parameters={"dataframe": df})
+    context = _get_context()
 
-    suite = context.suites.add(gx.ExpectationSuite(name=suite_name))
+    datasource = _get_or_add_datasource(context, f"pandas_{suite_name}")
+    asset = _get_or_add_asset(datasource, suite_name)
+    batch_definition = _get_or_add_batch_definition(asset, "batch")
+
+    # add_or_update with a *fresh* ExpectationSuite replaces any previously
+    # persisted expectation list — re-running always reflects exactly the
+    # current suite definition in code, never a stale accumulation.
+    suite = context.suites.add_or_update(gx.ExpectationSuite(name=f"{suite_name}_suite"))
     for expectation in expectations:
         suite.add_expectation(expectation)
 
-    result = batch.validate(suite)
-    return result.describe_dict()
-
-
-def write_report(table_name, report_name, result, extra=None):
-    """Write a JSON + HTML DQ report for one table/check to DQ_REPORT_PATH."""
-    report_dir = Path(DQ_REPORT_PATH)
-    report_dir.mkdir(parents=True, exist_ok=True)
-
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    payload = {
-        "table": table_name,
-        "report": report_name,
-        "timestamp": timestamp,
-        "success": result["success"],
-        "statistics": result["statistics"],
-        "expectations": result["expectations"],
-    }
-    if extra:
-        payload.update(extra)
-
-    base = f"{report_name}_{table_name}_{timestamp}"
-    json_path = report_dir / f"{base}.json"
-    json_path.write_text(json.dumps(payload, indent=2, default=str))
-
-    html_path = report_dir / f"{base}.html"
-    html_path.write_text(_render_html(payload))
-
-    return json_path, html_path
-
-
-def _render_html(payload):
-    rows = "".join(
-        "<tr><td>{}</td><td>{}</td><td style='color:{}'>{}</td></tr>".format(
-            e["expectation_type"],
-            e["kwargs"],
-            "green" if e["success"] else "red",
-            "PASS" if e["success"] else "FAIL",
+    validation_definition = context.validation_definitions.add_or_update(
+        gx.ValidationDefinition(
+            name=f"{suite_name}_validation", data=batch_definition, suite=suite
         )
-        for e in payload["expectations"]
     )
-    status = "PASS" if payload["success"] else "FAIL"
-    color = "green" if payload["success"] else "red"
-    return f"""<html><head><title>DQ Report - {payload['table']}</title></head>
-<body>
-<h2>{payload['report']} — {payload['table']}</h2>
-<p>Run: {payload['timestamp']}</p>
-<p>Overall: <b style="color:{color}">{status}</b></p>
-<p>{payload['statistics']}</p>
-<table border="1" cellpadding="5">
-<tr><th>Expectation</th><th>Kwargs</th><th>Result</th></tr>
-{rows}
-</table>
-</body></html>"""
+    checkpoint = context.checkpoints.add_or_update(
+        gx.Checkpoint(
+            name=f"{suite_name}_checkpoint",
+            validation_definitions=[validation_definition],
+            actions=[UpdateDataDocsAction(name="update_data_docs")],
+        )
+    )
+
+    checkpoint_result = checkpoint.run(batch_parameters={"dataframe": df})
+    validation_result = next(iter(checkpoint_result.run_results.values()))
+    return validation_result.describe_dict()

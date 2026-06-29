@@ -13,7 +13,7 @@ import pandas as pd
 
 from config.config import BRONZE_PATH
 from dq_checks.bronze_suites import SUITES
-from dq_checks.ge_utils import validate_dataframe, write_report
+from dq_checks.ge_utils import validate_dataframe
 
 RAW_DATA_DIR = Path("data/raw")
 
@@ -47,14 +47,12 @@ def ingest_table(table_name):
     critical, warn = SUITES[table_name]()
 
     critical_result = validate_dataframe(df, f"{table_name}_critical", critical)
-    write_report(table_name, "bronze_critical", critical_result)
     if not critical_result["success"]:
         raise ValueError(f"Bronze critical GE checks failed for {table_name}")
 
     warn_result = validate_dataframe(df, f"{table_name}_warn", warn)
-    write_report(table_name, "bronze_warn", warn_result)
     if not warn_result["success"]:
-        print(f"WARNING: soft GE checks failed for {table_name} (see DQ report)")
+        print(f"WARNING: soft GE checks failed for {table_name} (see Data Docs)")
 
     out_dir = Path(BRONZE_PATH) / table_name
     out_dir.mkdir(parents=True, exist_ok=True)

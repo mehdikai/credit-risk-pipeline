@@ -8,7 +8,7 @@ result to the Silver layer as a Delta table.
 import duckdb
 
 from config.config import BRONZE_PATH, SILVER_PATH
-from dq_checks.ge_utils import validate_dataframe, write_report
+from dq_checks.ge_utils import validate_dataframe
 from dq_checks.silver_suites import silver_input_expectations, silver_output_expectations
 
 try:
@@ -29,9 +29,8 @@ def build_silver_clean():
     input_result = validate_dataframe(
         app_raw, "silver_input_application_record", silver_input_expectations()
     )
-    write_report("application_record", "silver_input", input_result)
     if not input_result["success"]:
-        print("WARNING: Silver input-contract checks did not fully pass (see DQ report)")
+        print("WARNING: Silver input-contract checks did not fully pass (see Data Docs)")
 
     # --- dedup application_record on ID (keep first occurrence) ---
     app_dedup = con.execute(f"""
@@ -83,7 +82,6 @@ def build_silver_clean():
     output_result = validate_dataframe(
         joined, "silver_output_silver_clean", silver_output_expectations()
     )
-    write_report("silver_clean", "silver_output", output_result)
     if not output_result["success"]:
         raise ValueError("Silver output-contract checks failed for silver_clean")
 

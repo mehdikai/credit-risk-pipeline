@@ -18,7 +18,6 @@ BRONZE_PATH = PATHS[STORAGE_MODE]["bronze"]
 SILVER_PATH = PATHS[STORAGE_MODE]["silver"]
 GOLD_PATH   = PATHS[STORAGE_MODE]["gold"]
 
-DQ_REPORT_PATH = "dq_checks/reports/"
 # SQLite backend, not a plain file store: MLflow 3.x deprecated the
 # filesystem tracking backend (raises in "maintenance mode"). SQLite keeps
 # tracking single-file/serverless while staying on the supported path.

@@ -20,6 +20,7 @@ from deltalake import DeltaTable
 from mlflow.tracking import MlflowClient
 
 from config.config import GOLD_PATH, MLFLOW_URI
+from dq_checks.ge_utils import DATA_DOCS_INDEX
 from ml.train import MODEL_PATH
 
 st.set_page_config(page_title="Portfolio — Credit Risk Scorecard", page_icon="📊", layout="wide")
@@ -162,19 +163,23 @@ with tab_metrics:
         st.warning("No MLflow 'evaluation' run found yet — run ml/evaluate.py first.")
 
 with tab_dq:
-    reports_dir = Path("dq_checks/reports")
-    html_reports = sorted(reports_dir.glob("*.html"), reverse=True) if reports_dir.exists() else []
-    if html_reports:
-        selected = st.selectbox("📄 Select a DQ report", html_reports, format_func=lambda p: p.name)
+    if DATA_DOCS_INDEX.exists():
         st.markdown(
-            '<div style="border:1px solid #e6e9ef; border-radius:12px; overflow:hidden; '
-            'box-shadow:0 1px 3px rgba(0,0,0,0.06);">',
-            unsafe_allow_html=True,
+            "Every pipeline run validates each layer through a Great Expectations "
+            "checkpoint, which builds the full **GE Data Docs** site below — "
+            "per-suite pass/fail history, expectation-level drill-down, and charts."
         )
-        st.iframe(selected, height=600)
-        st.markdown("</div>", unsafe_allow_html=True)
+        docs_url = f"file://{DATA_DOCS_INDEX.resolve()}"
+        st.link_button("🔍 Open Data Quality Report ↗", docs_url, width="stretch")
+
+        suite_dirs = sorted(
+            p.name for p in (DATA_DOCS_INDEX.parent / "validations").iterdir() if p.is_dir()
+        )
+        with st.expander(f"Validated suites ({len(suite_dirs)})", expanded=False):
+            for suite in suite_dirs:
+                st.markdown(f"- `{suite}`")
     else:
-        st.warning("No DQ reports found yet — run the pipeline scripts first.")
+        st.warning("No Data Docs found yet — run the pipeline scripts first.")
 
 with tab_scorecard:
     iv_report = load_iv_report()

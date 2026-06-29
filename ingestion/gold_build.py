@@ -13,7 +13,7 @@ import pandas as pd
 from deltalake import DeltaTable, write_deltalake
 
 from config.config import GOLD_PATH, SILVER_PATH
-from dq_checks.ge_utils import validate_dataframe, write_report
+from dq_checks.ge_utils import validate_dataframe
 from dq_checks.gold_suites import gold_expectations
 
 GOLD_VERSION_LOG = Path(GOLD_PATH) / "_version_log.json"
@@ -32,7 +32,6 @@ def build_gold_features():
 
     # --- output contract check ---
     result = validate_dataframe(gold, "gold_gold_features", gold_expectations(feature_columns))
-    write_report("gold_features", "gold", result)
     if not result["success"]:
         raise ValueError("Gold output-contract checks failed for gold_features")
 

@@ -6,7 +6,7 @@ lakehouse/
 mlflow/
 mlruns/
 ml/model.pkl
-dq_checks/reports/
+dq_checks/gx/
 airflow_home/
 .env
 context.txt
