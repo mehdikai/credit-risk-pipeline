@@ -136,8 +136,9 @@ airflow standalone
 | 4 | Silver — WoE / IV / feature selection | Done |
 | 5 | Gold layer | Done |
 | 6 | Model training (Logistic Regression + scorecard + MLflow) | Done |
-| 7 | Model evaluation (KS, Gini, AUC) | Pending |
-| 8-9 | Streamlit dashboard (portfolio + live scoring) | Pending |
+| 7 | Model evaluation (KS, Gini, AUC) | Done |
+| 8 | Streamlit — Portfolio dashboard (passive) | Done |
+| 9 | Streamlit — Live scoring (active) | Pending |
 | 10 | Docker + MinIO | Pending |
 | 11 | Testing + polish | Pending |
 | 12 | PFE report + demo | Pending |
@@ -160,3 +161,12 @@ airflow standalone
   into a point-based scorecard (`ml/scorecard.csv`, base 600 pts / 50:1 odds
   / PDO 20). Train/test accuracy (~59%) is only a sanity check here — real
   evaluation (KS/Gini/AUC, threshold selection) is Week 7
+- Test-set evaluation: **AUC 0.657, Gini 0.315, KS 0.273** — modest but real
+  discrimination, consistent with the weak Week 4 IVs. Quantile-based
+  Approve/Refer/Decline bands give a useable **3.7x default-rate lift**
+  (Decline 3.16% vs Approve 0.85%, base rate 1.69%) — see
+  `docs/evaluation_report.md`
+- Streamlit portfolio dashboard (`streamlit run dashboard/app.py`): score
+  distribution by outcome, latest MLflow evaluation metrics, a DQ report
+  viewer (reads `dq_checks/reports/*.html` directly), and the scorecard +
+  IV bar chart — all read-only, no pipeline triggers

@@ -1,0 +1,41 @@
+{
+  "auc": 0.6573,
+  "gini": 0.3146,
+  "ks": 0.2734,
+  "ks_threshold_pd": 0.5101,
+  "confusion_matrix_at_ks_threshold": {
+    "labels": [
+      "good(0)",
+      "bad(1)"
+    ],
+    "matrix": [
+      [
+        4406,
+        2763
+      ],
+      [
+        42,
+        81
+      ]
+    ]
+  },
+  "overall_test_default_rate": 0.0169,
+  "decision_bands": {
+    "approve_cutoff_pd": 0.4722,
+    "decline_cutoff_pd": 0.6331,
+    "band_stats": {
+      "Approve": {
+        "count": 3646,
+        "default_rate": 0.0085
+      },
+      "Refer": {
+        "count": 2917,
+        "default_rate": 0.0237
+      },
+      "Decline": {
+        "count": 729,
+        "default_rate": 0.0316
+      }
+    }
+  }
+}
