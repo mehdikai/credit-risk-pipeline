@@ -4,9 +4,12 @@ Read-only view of Gold features, model performance, data-quality reports,
 and the scorecard table. Nothing on this page writes to or re-runs any
 part of the pipeline.
 """
+import functools
+import http.server
 import json
 import pickle
 import sys
+import threading
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -79,6 +82,33 @@ st.caption("Mode A — passive. Reads directly from Gold, MLflow, and DQ reports
 st.divider()
 
 
+DATA_DOCS_SERVER_PORT = 8765
+
+
+@st.cache_resource
+def _start_data_docs_server():
+    """Serve the GE Data Docs directory over plain HTTP.
+
+    Browsers block navigation to file:// URLs clicked from an http:// page
+    (cross-origin file access is disallowed), so file:// link buttons never
+    actually open. Serving the same directory over localhost HTTP sidesteps
+    that restriction entirely. st.cache_resource starts this once per app
+    process, not on every script rerun.
+    """
+    directory = str(DATA_DOCS_INDEX.parent)
+    handler = functools.partial(http.server.SimpleHTTPRequestHandler, directory=directory)
+    server = http.server.ThreadingHTTPServer(("localhost", DATA_DOCS_SERVER_PORT), handler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    return server
+
+
+def _data_docs_url(html_path=None):
+    _start_data_docs_server()
+    rel_path = "index.html" if html_path is None else html_path.relative_to(DATA_DOCS_INDEX.parent)
+    return f"http://localhost:{DATA_DOCS_SERVER_PORT}/{rel_path}"
+
+
 @st.cache_data
 def load_gold_with_scores():
     gold = DeltaTable(f"{GOLD_PATH}gold_features").to_pandas()
@@ -115,6 +145,31 @@ def load_iv_report():
 def load_scorecard():
     path = Path("ml/scorecard.csv")
     return pd.read_csv(path) if path.exists() else None
+
+
+@st.cache_data
+def load_suite_statuses():
+    """Latest validation result (pass/fail + link to its Data Docs page) per suite."""
+    validations_dir = DATA_DOCS_INDEX.parent.parent.parent / "validations"
+    data_docs_validations_dir = DATA_DOCS_INDEX.parent / "validations"
+    if not validations_dir.exists():
+        return []
+
+    statuses = []
+    for suite_dir in sorted(p for p in validations_dir.iterdir() if p.is_dir()):
+        json_files = sorted(suite_dir.rglob("*.json"), reverse=True)
+        if not json_files:
+            continue
+        latest_json = json_files[0]
+        data = json.loads(latest_json.read_text())
+        html_path = data_docs_validations_dir / latest_json.relative_to(validations_dir).with_suffix(".html")
+        statuses.append({
+            "suite": suite_dir.name.replace("_suite", ""),
+            "success": data.get("success", False),
+            "success_pct": data.get("statistics", {}).get("success_percent", 0),
+            "html_path": html_path,
+        })
+    return statuses
 
 
 tab_scores, tab_metrics, tab_dq, tab_scorecard = st.tabs(
@@ -169,15 +224,30 @@ with tab_dq:
             "checkpoint, which builds the full **GE Data Docs** site below — "
             "per-suite pass/fail history, expectation-level drill-down, and charts."
         )
-        docs_url = f"file://{DATA_DOCS_INDEX.resolve()}"
-        st.link_button("🔍 Open Data Quality Report ↗", docs_url, width="stretch")
+        st.link_button("🔍 Open Full Data Quality Report ↗", _data_docs_url(), width="stretch")
+        st.divider()
 
-        suite_dirs = sorted(
-            p.name for p in (DATA_DOCS_INDEX.parent / "validations").iterdir() if p.is_dir()
-        )
-        with st.expander(f"Validated suites ({len(suite_dirs)})", expanded=False):
-            for suite in suite_dirs:
-                st.markdown(f"- `{suite}`")
+        suite_statuses = load_suite_statuses()
+        if suite_statuses:
+            n_pass = sum(s["success"] for s in suite_statuses)
+            st.subheader(f"Validated suites — {n_pass}/{len(suite_statuses)} passing")
+
+            header = st.columns([3, 1, 1, 1.3])
+            for col, label in zip(header, ["Suite", "Status", "Pass %", ""]):
+                col.markdown(f"**{label}**")
+
+            for s in suite_statuses:
+                col1, col2, col3, col4 = st.columns([3, 1, 1, 1.3])
+                col1.markdown(f"`{s['suite']}`")
+                if s["success"]:
+                    col2.markdown(":green[✅ Pass]")
+                else:
+                    col2.markdown(":red[❌ Fail]")
+                col3.markdown(f"{s['success_pct']:.0f}%")
+                if s["html_path"].exists():
+                    col4.link_button("View ↗", _data_docs_url(s["html_path"]))
+        else:
+            st.info("No suite results found yet — run the pipeline scripts first.")
     else:
         st.warning("No Data Docs found yet — run the pipeline scripts first.")
 
